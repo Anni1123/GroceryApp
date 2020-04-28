@@ -1,4 +1,4 @@
-package com.example.groceryapp;
+package com.example.groceryapp.User;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,6 +32,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.groceryapp.R;
+import com.example.groceryapp.Seller.RegisterSellerActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;

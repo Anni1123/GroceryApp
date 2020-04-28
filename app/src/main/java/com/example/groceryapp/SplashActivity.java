@@ -9,6 +9,8 @@ import android.os.Handler;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.example.groceryapp.Seller.MainSellerActivity;
+import com.example.groceryapp.User.MainUserActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -50,11 +52,11 @@ public class SplashActivity extends AppCompatActivity {
                 for (DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
                     String accountType=""+dataSnapshot1.child("accountType").getValue();
                     if (accountType.equals("seller")){
-                        startActivity(new Intent(SplashActivity.this,MainSellerActivity.class));
+                        startActivity(new Intent(SplashActivity.this, MainSellerActivity.class));
                         finish();
                     }
                     else {
-                        startActivity(new Intent(SplashActivity.this,MainUserActivity.class));
+                        startActivity(new Intent(SplashActivity.this, MainUserActivity.class));
                         finish();
                     }
                 }

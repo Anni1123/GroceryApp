@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorWhite"
-    tools:context=".User.RegisterUserActivity">
+    tools:context=".ProfieEditSellerActivity">
     <RelativeLayout
+        android:id="@+id/toolbars"
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:padding="10dp"
@@ -21,7 +21,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:text="Register User"
+            android:text="Edit Profile"
             android:textStyle="bold"
             android:textSize="20sp"
             android:textColor="@color/colorWhite"/>
@@ -33,22 +33,11 @@
             android:layout_alignParentEnd="true"
             android:background="@null"/>
     </RelativeLayout>
-
-    <ImageView
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="@drawable/shape_coicle01"
-        android:layout_marginTop="60dp"
-        android:src="@drawable/ic_key"
-        android:padding="5dp"
-        android:layout_marginBottom="20dp"
-        android:layout_centerHorizontal="true"
-        android:id="@+id/iconeuser"/>
     <com.blogspot.atifsoftwares.circularimageview.CircularImageView
         android:layout_width="100dp"
         android:layout_height="100dp"
+        android:layout_below="@id/toolbars"
         android:id="@+id/profiletvuser"
-        android:layout_below="@id/iconeuser"
         android:layout_centerHorizontal="true"
         app:c_border="true"
         android:src="@drawable/ic_profile"
@@ -58,7 +47,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/profiletvuser"
-        android:hint="Person Name"
+        android:hint="Full Name"
         android:id="@+id/nameuser"
         android:padding="10dp"
         android:drawableStart="@drawable/ic_profile"
@@ -70,7 +59,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/nameuser"
-        android:hint="Person Phone"
+        android:hint="Shop Name"
+        android:id="@+id/shop"
+        android:padding="10dp"
+        android:drawableStart="@drawable/ic_store"
+        android:drawablePadding="5dp"
+        android:layout_margin="5dp"
+        android:inputType="textPersonName|textCapWords"
+        android:background="@drawable/shape_rec02"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/shop"
+        android:hint="Phone"
         android:id="@+id/phoneuser"
         android:padding="10dp"
         android:drawableStart="@drawable/ic_phone"
@@ -78,12 +79,24 @@
         android:layout_margin="5dp"
         android:inputType="phone"
         android:background="@drawable/shape_rec02"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/phoneuser"
+        android:hint="Delivery Fee"
+        android:id="@+id/delivery"
+        android:padding="10dp"
+        android:drawableStart="@drawable/ic_shpping"
+        android:drawablePadding="5dp"
+        android:layout_margin="5dp"
+        android:inputType="numberDecimal"
+        android:background="@drawable/shape_rec02"/>
     <LinearLayout
         android:id="@+id/addresslistuser"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_below="@id/phoneuser">
+        android:layout_below="@id/delivery">
         <EditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -133,61 +146,21 @@
         android:layout_margin="5dp"
         android:inputType="textPostalAddress|textMultiLine"
         android:background="@drawable/shape_rec02"/>
-    <EditText
+    <androidx.appcompat.widget.SwitchCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/shopopen"
+        android:layout_margin="5dp"
         android:layout_below="@id/addressuser"
-        android:hint="Email"
-        android:id="@+id/emailuser"
-        android:padding="10dp"
-        android:drawableStart="@drawable/ic_mail"
-        android:drawablePadding="5dp"
-        android:layout_margin="5dp"
-        android:inputType="textEmailAddress"
-        android:background="@drawable/shape_rec02"/>
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/emailuser"
-        android:hint="Password"
-        android:id="@+id/passworduser"
-        android:padding="10dp"
-        android:drawableStart="@drawable/ic_lock"
-        android:drawablePadding="5dp"
-        android:layout_margin="5dp"
-        android:inputType="textPassword"
-        android:background="@drawable/shape_rec02"/>
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/passworduser"
-        android:hint="Confirm Password"
-        android:id="@+id/cpassworduser"
-        android:padding="10dp"
-        android:drawableStart="@drawable/ic_lock"
-        android:drawablePadding="5dp"
-        android:layout_margin="5dp"
-        android:inputType="textPassword"
-        android:background="@drawable/shape_rec02"/>
-
+        android:text="Shop Open"/>
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/registeruser"
-        android:text="Register"
+        android:id="@+id/update"
+        android:text="Update"
         android:minWidth="120dp"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/cpassworduser"
+        android:layout_below="@id/shopopen"
         style="@style/Widget.AppCompat.Button.Colored"
         />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/regsierseller"
-        android:layout_margin="5dp"
-        android:text="Register As a Seller"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        />
-
 </RelativeLayout>

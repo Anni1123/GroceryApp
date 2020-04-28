@@ -1,4 +1,4 @@
-package com.example.groceryapp;
+package com.example.groceryapp.Seller;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,9 +29,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.groceryapp.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -227,7 +227,7 @@ public class RegisterSellerActivity extends AppCompatActivity implements Locatio
                         @Override
                         public void onSuccess(Void aVoid) {
                             dialog.dismiss();
-                            startActivity(new Intent(RegisterSellerActivity.this,MainSellerActivity.class));
+                            startActivity(new Intent(RegisterSellerActivity.this, MainSellerActivity.class));
                             finish();
                         }
                     }).addOnFailureListener(new OnFailureListener() {

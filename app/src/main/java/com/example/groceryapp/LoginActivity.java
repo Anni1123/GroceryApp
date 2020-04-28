@@ -15,6 +15,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.groceryapp.Seller.MainSellerActivity;
+import com.example.groceryapp.User.MainUserActivity;
+import com.example.groceryapp.User.RegisterUserActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
@@ -53,7 +56,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(
-                        LoginActivity.this,RegisterUserActivity.class));
+                        LoginActivity.this, RegisterUserActivity.class));
             }
         });
         forgep.setOnClickListener(new View.OnClickListener() {
@@ -131,12 +134,12 @@ public class LoginActivity extends AppCompatActivity {
                     String accountType=""+dataSnapshot1.child("accountType").getValue();
                     if (accountType.equals("seller")){
                         dialog.dismiss();
-                        startActivity(new Intent(LoginActivity.this,MainSellerActivity.class));
+                        startActivity(new Intent(LoginActivity.this, MainSellerActivity.class));
                         finish();
                     }
                     else {
                         dialog.dismiss();
-                        startActivity(new Intent(LoginActivity.this,MainUserActivity.class));
+                        startActivity(new Intent(LoginActivity.this, MainUserActivity.class));
                         finish();
                     }
                 }
