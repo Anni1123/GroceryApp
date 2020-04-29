@@ -1,6 +1,9 @@
 package com.example.groceryapp;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,15 +13,23 @@ import android.widget.Filterable;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.widget.Toast.LENGTH_LONG;
 
 public class AdapterProductSeller extends RecyclerView.Adapter<AdapterProductSeller.MyHolder> implements Filterable {
 
@@ -99,7 +110,7 @@ public class AdapterProductSeller extends RecyclerView.Adapter<AdapterProductSel
         TextView discount=view.findViewById(R.id.discount);
         TextView originalprice=view.findViewById(R.id.originalprice);
 
-        String id=products.getTimestamp();
+        final String id=products.getTimestamp();
         String uid=products.getProductId();
         String discountavailable=products.getDiscountAvailable();
         String discountnotes=products.getDiscountnote();
@@ -109,7 +120,7 @@ public class AdapterProductSeller extends RecyclerView.Adapter<AdapterProductSel
         String originalpric=products.getOriginalPrice();
         String icon=products.getProductIcon();
         String quantitites=products.getQuantity();
-        String titles=products.getTitle();
+        final String titles=products.getTitle();
         String timestamp=products.getTimestamp();
         title.setText(titles);
         desc.setText(description);
@@ -137,13 +148,30 @@ public class AdapterProductSeller extends RecyclerView.Adapter<AdapterProductSel
         edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                sheetDialog.dismiss();
+                Intent intent=new Intent(context,EditProductActivity.class);
+                intent.putExtra("productId",id);
+                context.startActivity(intent);
             }
         });
         delete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                sheetDialog.dismiss();
+                AlertDialog.Builder builder=new AlertDialog.Builder(context);
+                builder.setTitle("Delete")
+                        .setMessage("Are You Sure to delete this product" +" "+ titles + "?").
+                        setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                deleteProduct(id);
+                            }
+                        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();;
+                    }
+                }).show();
             }
         });
         back.setOnClickListener(new View.OnClickListener() {
@@ -154,6 +182,22 @@ public class AdapterProductSeller extends RecyclerView.Adapter<AdapterProductSel
         });
     }
 
+    private void deleteProduct(String id) {
+        FirebaseAuth firebaseAuth=FirebaseAuth.getInstance();
+        DatabaseReference reference= FirebaseDatabase.getInstance().getReference("Users");
+        reference.child(firebaseAuth.getUid()).child("Products").child(id).removeValue()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(context,"Deleted Product", LENGTH_LONG).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(context,""+e.getMessage(), LENGTH_LONG).show();
+            }
+        });
+    }
 
 
     @Override
