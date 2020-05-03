@@ -1,4 +1,4 @@
-package com.example.groceryapp.User;
+package com.example.groceryapp.activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,7 +33,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.groceryapp.R;
-import com.example.groceryapp.Seller.RegisterSellerActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -210,8 +209,8 @@ public class RegisterUserActivity extends AppCompatActivity implements LocationL
             hashMap.put("state", mystate);
             hashMap.put("city", mycity);
             hashMap.put("address", myadress);
-            hashMap.put("latitude", latitude);
-            hashMap.put("longitude", longitude);
+            hashMap.put("latitude",""+ latitude);
+            hashMap.put("longitude", ""+longitude);
             hashMap.put("timestamp", timestamp);
             hashMap.put("accountType", "user");
             hashMap.put("online", "true");

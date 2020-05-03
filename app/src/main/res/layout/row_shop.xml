@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="1dp"
+    app:cardElevation="3dp"
+    app:contentPadding="5dp">
+
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <com.blogspot.atifsoftwares.circularimageview.CircularImageView
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginEnd="10dp"
+        android:id="@+id/shoptv"
+        app:c_border="true"
+        app:c_border_width="1dp"
+        app:c_border_color="@color/colorgray01"
+        android:src="@drawable/ic_store"/>
+<ImageView
+    android:layout_width="20dp"
+    android:layout_height="20dp"
+    android:id="@+id/onlinetv"
+    android:src="@drawable/shape_circle03"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/shopClosed"
+        android:layout_toStartOf="@id/nexttv"
+        android:padding="5dp"
+        android:background="@drawable/shape_rec06"
+        android:text="Closed"
+        android:textSize="10sp"
+        android:textColor="@color/colorRed"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_toStartOf="@id/nexttv"
+        android:layout_toEndOf="@id/shoptv">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:padding="5dp"
+            android:id="@+id/shopname"
+            android:text="Shop Name"
+            android:textColor="@color/colorBlack"
+            android:layout_marginTop="5dp"
+            android:maxLines="1"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/shopno"
+            android:text="Phone"
+            android:textColor="@color/colorBlack"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/address"
+            android:text="Address"
+            android:textColor="@color/colorBlack"
+            />
+        <RatingBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ratingbar"
+            style="@style/Widget.AppCompat.RatingBar.Small"
+            android:numStars="5"
+            android:layout_gravity="end"
+            android:rating="3.5"/>
+
+    </LinearLayout>
+    <ImageView
+        android:id="@+id/nexttv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_next"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"/>
+
+</RelativeLayout>
+</androidx.cardview.widget.CardView>

@@ -1,4 +1,4 @@
-package com.example.groceryapp;
+package com.example.groceryapp.adapter;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -18,6 +18,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.groceryapp.FilterProduct;
+import com.example.groceryapp.R;
+import com.example.groceryapp.activities.EditProductActivity;
+import com.example.groceryapp.model.ModelProducts;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -27,7 +31,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static android.widget.Toast.LENGTH_LONG;
 
@@ -149,7 +152,7 @@ public class AdapterProductSeller extends RecyclerView.Adapter<AdapterProductSel
             @Override
             public void onClick(View v) {
                 sheetDialog.dismiss();
-                Intent intent=new Intent(context,EditProductActivity.class);
+                Intent intent=new Intent(context, EditProductActivity.class);
                 intent.putExtra("productId",id);
                 context.startActivity(intent);
             }

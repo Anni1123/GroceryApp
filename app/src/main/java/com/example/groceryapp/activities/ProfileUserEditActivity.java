@@ -1,4 +1,4 @@
-package com.example.groceryapp.Seller;
+package com.example.groceryapp.activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,7 +23,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -35,13 +34,17 @@ import com.example.groceryapp.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.List;
@@ -49,13 +52,12 @@ import java.util.Locale;
 
 import static android.widget.Toast.LENGTH_LONG;
 
-public class RegisterSellerActivity extends AppCompatActivity implements LocationListener {
+public class ProfileUserEditActivity extends AppCompatActivity implements LocationListener {
 
     ImageButton back,gps;
     ImageView profile;
-    EditText name,phone,country,state,city,adress,email
-            ,password,confirmpassword,delivery,shop;
-    Button register;
+    Button update;
+    EditText name, phone, country, state, city, adress;
 
     private static final int LOCATION_REQUEST=100;
     private static final int CAMERA_REQUEST = 200;
@@ -74,29 +76,23 @@ public class RegisterSellerActivity extends AppCompatActivity implements Locatio
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register_seller);
-
+        setContentView(R.layout.activity_profile_user_edit);
         back=findViewById(R.id.backbtnuser);
+        profile = findViewById(R.id.profiletvuser);
+        name = findViewById(R.id.nameuser);
         gps=findViewById(R.id.gpsbtn);
-        profile=findViewById(R.id.profiletvuser);
-        name=findViewById(R.id.nameuser);
-        phone=findViewById(R.id.phoneuser);
-        delivery=findViewById(R.id.delivery);
-        shop=findViewById(R.id.snameuser);
-        country=findViewById(R.id.country);
-        state=findViewById(R.id.state);
-        city=findViewById(R.id.city);
-        adress=findViewById(R.id.addressuser);
-        email=findViewById(R.id.emailuser);
-        password=findViewById(R.id.passworduser);
-        confirmpassword=findViewById(R.id.cpassworduser);
-        register=findViewById(R.id.registeruser);
+        phone = findViewById(R.id.phoneuser);
+        country = findViewById(R.id.country);
+        state = findViewById(R.id.state);
+        city = findViewById(R.id.city);
+        adress = findViewById(R.id.addressuser);
+        update=findViewById(R.id.update);
         locationpermission=new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
         cameraPermission = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermission = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
-
         firebaseAuth=FirebaseAuth.getInstance();
         dialog=new ProgressDialog(this);
+        checkUSer();
         dialog.setTitle("Please Wait...");
         dialog.setCanceledOnTouchOutside(false);
         back.setOnClickListener(new View.OnClickListener() {
@@ -117,23 +113,20 @@ public class RegisterSellerActivity extends AppCompatActivity implements Locatio
                 }
             }
         });
-        register.setOnClickListener(new View.OnClickListener() {
+        update.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 inputData();
             }
         });
         profile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 showImagePicDialog();
             }
         });
     }
-    String names,phonenumber,mycountry,mystate,mycity,myadress,myemail
-            ,mypassword,myconfirmpassword,mydelivery,myshop;
+    String names,phonenumber,mycountry,mystate,mycity,myadress;
 
     private void inputData() {
         names=name.getText().toString().trim();
@@ -142,92 +135,36 @@ public class RegisterSellerActivity extends AppCompatActivity implements Locatio
         mystate=state.getText().toString().trim();
         myadress=adress.getText().toString().trim();
         mycity=city.getText().toString().trim();
-        myemail=email.getText().toString().trim();
-        mypassword=password.getText().toString().trim();
-        myconfirmpassword=confirmpassword.getText().toString().trim();
-        mydelivery=delivery.getText().toString().trim();
-        myshop=shop.getText().toString().trim();
-       if(TextUtils.isEmpty(names)){
-           Toast.makeText(RegisterSellerActivity.this,"Name Cant be Empty...", LENGTH_LONG).show();
-           return;
-       }
+        if(TextUtils.isEmpty(names)){
+            Toast.makeText(ProfileUserEditActivity.this,"Name Cant be Empty...", LENGTH_LONG).show();
+            return;
+        }
         if(TextUtils.isEmpty(phonenumber)){
-            Toast.makeText(RegisterSellerActivity.this,"Phone Number Cant be Empty...", LENGTH_LONG).show();
+            Toast.makeText(ProfileUserEditActivity.this,"Phone Number Cant be Empty...", LENGTH_LONG).show();
             return;
         }
-        if(!mypassword.equals(myconfirmpassword)){
-            Toast.makeText(RegisterSellerActivity.this,"Confirm Password Cant be Empty...", LENGTH_LONG).show();
-            return;
-        }
-        if(TextUtils.isEmpty(mydelivery)){
-            Toast.makeText(RegisterSellerActivity.this,"Delivery Cant be Empty...", LENGTH_LONG).show();
-            return;
-        }
-        if(!Patterns.EMAIL_ADDRESS.matcher(myemail).matches()){
-            Toast.makeText(RegisterSellerActivity.this,"Email Cant be Empty...", LENGTH_LONG).show();
-            return;
-        }
-        if(mypassword.length()<6){
-            Toast.makeText(RegisterSellerActivity.this,"Password Cant be Less than 6 digit...", LENGTH_LONG).show();
-            return;
-        }
-        if(TextUtils.isEmpty(myshop)){
-            Toast.makeText(RegisterSellerActivity.this,"Shop Cant be Empty...", LENGTH_LONG).show();
-            return;
-        }
-       createAccount();
+        updateInfo();
 
     }
 
-    private void createAccount() {
-        dialog.setMessage("Creating Account");
+    private void updateInfo() {
+        dialog.setMessage("Updating Profile...");
         dialog.show();
-        firebaseAuth.createUserWithEmailAndPassword(myemail,mypassword)
-                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-                    @Override
-                    public void onSuccess(AuthResult authResult) {
-
-                        saveFirebaseData();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-
-                Toast.makeText(RegisterSellerActivity.this,"Sorry,Account Not Created", LENGTH_LONG).show();
-                return;
-            }
-        });
-    }
-
-    private void saveFirebaseData() {
-        dialog.setMessage("Saving Account Info");
-        final String timestamp=""+System.currentTimeMillis();
         if(uri==null){
             HashMap<String ,Object> hashMap=new HashMap<>();
             hashMap.put("uid",""+firebaseAuth.getUid());
-            hashMap.put("email",myemail);
             hashMap.put("name",""+names);
-            hashMap.put("shopName",""+myshop);
             hashMap.put("phone",phonenumber);
-            hashMap.put("delivery",mydelivery);
             hashMap.put("country",mycountry);
             hashMap.put("state",mystate);
             hashMap.put("city",mycity);
             hashMap.put("address",myadress);
-            hashMap.put("latitude",latitude);
-            hashMap.put("longitude",longitude);
-            hashMap.put("timestamp",timestamp);
-            hashMap.put("accountType","seller");
-            hashMap.put("online","true");
-            hashMap.put("shopOpen","true");
-            hashMap.put("profileImage","");
             DatabaseReference ref= FirebaseDatabase.getInstance().getReference("Users");
-            ref.child(firebaseAuth.getUid()).setValue(hashMap)
+            ref.child(firebaseAuth.getUid()).updateChildren(hashMap)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             dialog.dismiss();
-                            startActivity(new Intent(RegisterSellerActivity.this, MainSellerActivity.class));
                             finish();
                         }
                     }).addOnFailureListener(new OnFailureListener() {
@@ -235,7 +172,6 @@ public class RegisterSellerActivity extends AppCompatActivity implements Locatio
                 public void onFailure(@NonNull Exception e) {
 
                     dialog.dismiss();
-                    startActivity(new Intent(RegisterSellerActivity.this,MainSellerActivity.class));
                     finish();
                 }
             });
@@ -253,36 +189,27 @@ public class RegisterSellerActivity extends AppCompatActivity implements Locatio
                     if(uriTask.isSuccessful()){
                         HashMap<String ,Object> hashMap=new HashMap<>();
                         hashMap.put("uid",""+firebaseAuth.getUid());
-                        hashMap.put("email",myemail);
                         hashMap.put("name",""+names);
-                        hashMap.put("shopName",""+myshop);
                         hashMap.put("phone",phonenumber);
-                        hashMap.put("delivery",mydelivery);
                         hashMap.put("country",mycountry);
                         hashMap.put("state",mystate);
                         hashMap.put("city",mycity);
                         hashMap.put("address",myadress);
                         hashMap.put("latitude",latitude);
                         hashMap.put("longitude",longitude);
-                        hashMap.put("timestamp",timestamp);
-                        hashMap.put("accountType","seller");
-                        hashMap.put("online","true");
-                        hashMap.put("shopOpen","true");
                         hashMap.put("profileImage",""+downloadUri);
                         DatabaseReference ref= FirebaseDatabase.getInstance().getReference("Users");
-                        ref.child(firebaseAuth.getUid()).setValue(hashMap)
+                        ref.child(firebaseAuth.getUid()).updateChildren(hashMap)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         dialog.dismiss();
-                                        startActivity(new Intent(RegisterSellerActivity.this,MainSellerActivity.class));
                                         finish();
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 dialog.dismiss();
-                                startActivity(new Intent(RegisterSellerActivity.this,MainSellerActivity.class));
                                 finish();
                             }
                         });
@@ -293,42 +220,14 @@ public class RegisterSellerActivity extends AppCompatActivity implements Locatio
                 public void onFailure(@NonNull Exception e) {
 
                     dialog.dismiss();
-                    Toast.makeText(RegisterSellerActivity.this,""+e.getMessage(), LENGTH_LONG).show();
+                    Toast.makeText(ProfileUserEditActivity.this,""+e.getMessage(), LENGTH_LONG).show();
                 }
             });
         }
     }
-
-    private void findAddress() {
-        Geocoder geocoder;
-        List<Address> addresses;
-        geocoder=new Geocoder(this, Locale.getDefault());
-        try {
-            addresses=geocoder.getFromLocation(latitude,longitude,1);
-            String addresss=addresses.get(0).getAddressLine(0);
-            String cityy=addresses.get(0).getLocality();
-            String statee=addresses.get(0).getAdminArea();
-            String countryy=addresses.get(0).getCountryName();
-            country.setText(countryy);
-            state.setText(statee);
-            city.setText(cityy);
-            adress.setText(addresss);
-        }
-        catch (Exception e){
-            Toast.makeText(RegisterSellerActivity.this,""+e.getMessage(), LENGTH_LONG).show();
-        }
-    }
-    private boolean checkLocationPermission(){
-        boolean result= ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)
-                ==(PackageManager.PERMISSION_GRANTED);
-        return result;
-    }
-    private void requestlocationpermission(){
-        ActivityCompat.requestPermissions(this,locationpermission,LOCATION_REQUEST);
-    }
     private void showImagePicDialog() {
         String options[]={ "Camera","Gallery"};
-        AlertDialog.Builder builder=new AlertDialog.Builder(RegisterSellerActivity.this);
+        AlertDialog.Builder builder=new AlertDialog.Builder(ProfileUserEditActivity.this);
         builder.setTitle("Pick Image From");
         builder.setItems(options, new DialogInterface.OnClickListener() {
             @Override
@@ -370,12 +269,65 @@ public class RegisterSellerActivity extends AppCompatActivity implements Locatio
     }
     private void pickFromCamera(){
         ContentValues contentValues=new ContentValues();
-        contentValues.put(MediaStore.Images.Media.TITLE,"Temp_pic");
-        contentValues.put(MediaStore.Images.Media.DESCRIPTION,"Temp Description");
+        contentValues.put(MediaStore.Images.Media.TITLE,"Image Title");
+        contentValues.put(MediaStore.Images.Media.DESCRIPTION,"Image Description");
         uri=this.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,contentValues);
         Intent camerIntent=new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         camerIntent.putExtra(MediaStore.EXTRA_OUTPUT,uri);
         startActivityForResult(camerIntent,IMAGE_PICKCAMERA_REQUEST);
+    }
+
+
+    private void checkUSer() {
+        FirebaseUser user=firebaseAuth.getCurrentUser();
+        if(user==null){
+            startActivity(new Intent(ProfileUserEditActivity.this, LoginActivity.class));
+            finish();
+        }
+        else {
+            loadMyInfo();
+        }
+    }
+
+    private void loadMyInfo() {
+
+        DatabaseReference reference= FirebaseDatabase.getInstance().getReference("Users");
+        reference.orderByChild("uid").equalTo(firebaseAuth.getUid()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
+                    String names=""+dataSnapshot1.child("name").getValue();
+                    String accountType=""+dataSnapshot1.child("accountType").getValue();
+                    String addresss=""+dataSnapshot1.child("address").getValue();
+                    String cityy=""+dataSnapshot1.child("city").getValue();
+                    String statee=""+dataSnapshot1.child("state").getValue();
+                    String countryy=""+dataSnapshot1.child("country").getValue();
+                    String phone1=""+dataSnapshot1.child("phone").getValue();
+                    String timestamp1=""+dataSnapshot1.child("timestamp").getValue();
+                    String onlinee=""+dataSnapshot1.child("online").getValue();
+                    String profileI=""+dataSnapshot1.child("profileImage").getValue();
+                    name.setText(names );
+                    phone.setText(phone1);
+                    state.setText(statee);
+                    city.setText(cityy);
+                    country.setText(countryy);
+                    adress.setText(addresss);
+                    try{
+                        Picasso.get().load(profileI).into(profile);
+                    }
+                    catch (Exception e){
+
+                    }
+
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
     private void pickFromGallery(){
         Intent galleryIntent = new Intent(Intent.ACTION_PICK);
@@ -383,15 +335,42 @@ public class RegisterSellerActivity extends AppCompatActivity implements Locatio
         startActivityForResult(galleryIntent, IMAGEPICK_GALLERY_REQUEST);
     }
     private Boolean checkStoragePermission(){
-        boolean result= ContextCompat.checkSelfPermission(RegisterSellerActivity.this,Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        boolean result= ContextCompat.checkSelfPermission(ProfileUserEditActivity.this,Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 ==(PackageManager.PERMISSION_GRANTED);
         return result;
     }
+    private boolean checkLocationPermission(){
+        boolean result= ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_FINE_LOCATION)
+                ==(PackageManager.PERMISSION_GRANTED);
+        return result;
+    }
+    private void requestlocationpermission(){
+        ActivityCompat.requestPermissions(this,locationpermission,LOCATION_REQUEST);
+    }
     private void detectlocation() {
 
-        Toast.makeText(RegisterSellerActivity.this,"Please Wait", LENGTH_LONG).show();
+        Toast.makeText(ProfileUserEditActivity.this,"Please Wait", LENGTH_LONG).show();
         manager=(LocationManager)getSystemService(Context.LOCATION_SERVICE);
         manager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,this);
+    }
+    private void findAddress() {
+        Geocoder geocoder;
+        List<Address> addresses;
+        geocoder=new Geocoder(this, Locale.getDefault());
+        try {
+            addresses=geocoder.getFromLocation(latitude,longitude,1);
+            String addresss=addresses.get(0).getAddressLine(0);
+            String cityy=addresses.get(0).getLocality();
+            String statee=addresses.get(0).getAdminArea();
+            String countryy=addresses.get(0).getCountryName();
+            country.setText(countryy);
+            state.setText(statee);
+            city.setText(cityy);
+            adress.setText(addresss);
+        }
+        catch (Exception e){
+            Toast.makeText(ProfileUserEditActivity.this,""+e.getMessage(), LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -411,27 +390,15 @@ public class RegisterSellerActivity extends AppCompatActivity implements Locatio
     @Override
     public void onProviderEnabled(String provider) {
 
-        Toast.makeText(RegisterSellerActivity.this,"Please Turn On Gps...", LENGTH_LONG).show();
+        Toast.makeText(ProfileUserEditActivity.this,"Please Turn On Gps...", LENGTH_LONG).show();
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if(resultCode == RESULT_OK){
-            if(requestCode==IMAGEPICK_GALLERY_REQUEST){
-                uri=data.getData();
-                profile.setImageURI(uri);
-            }
-            if(requestCode==IMAGE_PICKCAMERA_REQUEST){
-                profile.setImageURI(uri);
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
 
     @Override
     public void onProviderDisabled(String provider) {
-
+        Toast.makeText(ProfileUserEditActivity.this,"Location is Disabled", LENGTH_LONG).show();
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode){
@@ -443,7 +410,7 @@ public class RegisterSellerActivity extends AppCompatActivity implements Locatio
                         detectlocation();
                     }
                     else {
-                        Toast.makeText(RegisterSellerActivity.this,"LocationPermission Required", LENGTH_LONG).show();
+                        Toast.makeText(ProfileUserEditActivity.this,"LocationPermission Required", LENGTH_LONG).show();
                     }
                 }
             }
@@ -478,4 +445,17 @@ public class RegisterSellerActivity extends AppCompatActivity implements Locatio
     }
 
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(resultCode == RESULT_OK){
+            if(requestCode==IMAGEPICK_GALLERY_REQUEST){
+                uri=data.getData();
+                profile.setImageURI(uri);
+            }
+            if(requestCode==IMAGE_PICKCAMERA_REQUEST){
+                profile.setImageURI(uri);
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 }

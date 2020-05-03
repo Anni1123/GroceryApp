@@ -4,21 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".User.MainUserActivity">
+    tools:context=".activities.MainUserActivity">
     <RelativeLayout
+        android:id="@+id/toolbars"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="wrap_content"
         android:padding="10dp"
         android:background="@drawable/shape_rec01">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:text="Name"
-            android:id="@+id/name"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:textColor="@color/colorWhite"/>
         <ImageButton
             android:layout_width="30dp"
             android:layout_height="30dp"
@@ -33,5 +25,84 @@
             android:id="@+id/edit"
             android:layout_toStartOf="@id/logout"
             android:background="@null"/>
+
+        <com.blogspot.atifsoftwares.circularimageview.CircularImageView
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginEnd="10dp"
+            android:id="@+id/profiletv"
+            app:c_border="true"
+            app:c_border_color="@color/colorWhite"
+            android:src="@drawable/ic_store"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name"
+            android:id="@+id/name"
+            android:textStyle="bold"
+            android:layout_toEndOf="@id/profiletv"
+            android:textColor="@color/colorWhite"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email"
+            android:id="@+id/email"
+            android:layout_below="@id/name"
+            android:layout_toEndOf="@id/profiletv"
+            android:textColor="@color/colorWhite"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Phone"
+            android:layout_below="@id/email"
+            android:id="@+id/phones"
+            android:layout_toEndOf="@id/profiletv"
+            android:textColor="@color/colorWhite"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_below="@id/profiletv"
+            android:orientation="horizontal"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/shape_rec03"
+            >
+            <TextView
+                android:id="@+id/tabshops"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/shape_rec04"
+                android:gravity="center"
+                android:text="Shops"
+                android:textColor="@color/colorBlack"/>
+            <TextView
+                android:id="@+id/taborders"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="Orders"
+                android:textColor="@color/colorWhite"/>
+        </LinearLayout>
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbars"
+        android:id="@+id/shopslayout">
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/shoprv"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/row_shop"/>
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbars"
+        android:id="@+id/orderlayout">
+
     </RelativeLayout>
 </RelativeLayout>

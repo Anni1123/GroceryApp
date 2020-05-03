@@ -1,4 +1,4 @@
-package com.example.groceryapp;
+package com.example.groceryapp.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,8 +9,7 @@ import android.os.Handler;
 import android.view.Window;
 import android.view.WindowManager;
 
-import com.example.groceryapp.Seller.MainSellerActivity;
-import com.example.groceryapp.User.MainUserActivity;
+import com.example.groceryapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -35,7 +34,7 @@ public class SplashActivity extends AppCompatActivity {
             public void run() {
                 FirebaseUser user=firebaseAuth.getCurrentUser();
                 if(user==null){
-                    startActivity(new Intent(SplashActivity.this,LoginActivity.class));
+                    startActivity(new Intent(SplashActivity.this, LoginActivity.class));
                     finish();
                 }
                 else {
@@ -46,19 +45,17 @@ public class SplashActivity extends AppCompatActivity {
     }
     private void checkUserType() {
         DatabaseReference reference= FirebaseDatabase.getInstance().getReference("Users");
-        reference.orderByChild("uid").equalTo(firebaseAuth.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+        reference.child(firebaseAuth.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
-                    String accountType=""+dataSnapshot1.child("accountType").getValue();
-                    if (accountType.equals("seller")){
-                        startActivity(new Intent(SplashActivity.this, MainSellerActivity.class));
-                        finish();
-                    }
-                    else {
-                        startActivity(new Intent(SplashActivity.this, MainUserActivity.class));
-                        finish();
-                    }
+                String accountType=""+dataSnapshot.child("accountType").getValue();
+                if (accountType.equals("seller")){
+                    startActivity(new Intent(SplashActivity.this, MainSellerActivity.class));
+                    finish();
+                }
+                else {
+                    startActivity(new Intent(SplashActivity.this, MainUserActivity.class));
+                    finish();
                 }
             }
 

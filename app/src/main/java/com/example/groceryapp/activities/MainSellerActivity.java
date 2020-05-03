@@ -1,4 +1,4 @@
-package com.example.groceryapp.Seller;
+package com.example.groceryapp.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -17,12 +17,9 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.example.groceryapp.AdapterProductSeller;
-import com.example.groceryapp.AddProductActivity;
+import com.example.groceryapp.adapter.AdapterProductSeller;
 import com.example.groceryapp.Constants;
-import com.example.groceryapp.LoginActivity;
-import com.example.groceryapp.ModelProducts;
-import com.example.groceryapp.ProfieEditSellerActivity;
+import com.example.groceryapp.model.ModelProducts;
 import com.example.groceryapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

@@ -2,6 +2,9 @@ package com.example.groceryapp;
 
 import android.widget.Filter;
 
+import com.example.groceryapp.adapter.AdapterProductSeller;
+import com.example.groceryapp.model.ModelProducts;
+
 import java.util.ArrayList;
 
 public class FilterProduct extends Filter {

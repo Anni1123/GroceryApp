@@ -1,8 +1,9 @@
-package com.example.groceryapp;
+package com.example.groceryapp.activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -30,8 +31,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.groceryapp.Seller.MainSellerActivity;
-import com.example.groceryapp.Seller.RegisterSellerActivity;
+import com.example.groceryapp.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -53,12 +53,13 @@ import java.util.Locale;
 
 import static android.widget.Toast.LENGTH_LONG;
 
-public class ProfileUserEditActivity extends AppCompatActivity implements LocationListener {
+public class ProfieEditSellerActivity extends AppCompatActivity implements LocationListener {
 
     ImageButton back,gps;
     ImageView profile;
     Button update;
-    EditText name, phone, country, state, city, adress;
+    SwitchCompat compat;
+    EditText name, phone, country, state, city, adress,shop,delivery;
 
     private static final int LOCATION_REQUEST=100;
     private static final int CAMERA_REQUEST = 200;
@@ -77,23 +78,26 @@ public class ProfileUserEditActivity extends AppCompatActivity implements Locati
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile_user_edit);
+        setContentView(R.layout.activity_profie_edit_seller);
         back=findViewById(R.id.backbtnuser);
         profile = findViewById(R.id.profiletvuser);
         name = findViewById(R.id.nameuser);
+        shop=findViewById(R.id.shop);
+        delivery=findViewById(R.id.delivery);
         gps=findViewById(R.id.gpsbtn);
         phone = findViewById(R.id.phoneuser);
         country = findViewById(R.id.country);
         state = findViewById(R.id.state);
         city = findViewById(R.id.city);
+        compat=findViewById(R.id.shopopen);
         adress = findViewById(R.id.addressuser);
         update=findViewById(R.id.update);
         locationpermission=new String[]{Manifest.permission.ACCESS_FINE_LOCATION};
         cameraPermission = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermission = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
         firebaseAuth=FirebaseAuth.getInstance();
-        dialog=new ProgressDialog(this);
         checkUSer();
+        dialog=new ProgressDialog(this);
         dialog.setTitle("Please Wait...");
         dialog.setCanceledOnTouchOutside(false);
         back.setOnClickListener(new View.OnClickListener() {
@@ -117,6 +121,7 @@ public class ProfileUserEditActivity extends AppCompatActivity implements Locati
         update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 inputData();
             }
         });
@@ -127,7 +132,8 @@ public class ProfileUserEditActivity extends AppCompatActivity implements Locati
             }
         });
     }
-    String names,phonenumber,mycountry,mystate,mycity,myadress;
+
+    String names,phonenumber,mycountry,mystate,mycity,myadress,mydelivery,myshop;
 
     private void inputData() {
         names=name.getText().toString().trim();
@@ -136,15 +142,25 @@ public class ProfileUserEditActivity extends AppCompatActivity implements Locati
         mystate=state.getText().toString().trim();
         myadress=adress.getText().toString().trim();
         mycity=city.getText().toString().trim();
+        mydelivery=delivery.getText().toString().trim();
+        myshop=shop.getText().toString().trim();
         if(TextUtils.isEmpty(names)){
-            Toast.makeText(ProfileUserEditActivity.this,"Name Cant be Empty...", LENGTH_LONG).show();
+            Toast.makeText(ProfieEditSellerActivity.this,"Name Cant be Empty...", LENGTH_LONG).show();
             return;
         }
         if(TextUtils.isEmpty(phonenumber)){
-            Toast.makeText(ProfileUserEditActivity.this,"Phone Number Cant be Empty...", LENGTH_LONG).show();
+            Toast.makeText(ProfieEditSellerActivity.this,"Phone Number Cant be Empty...", LENGTH_LONG).show();
             return;
         }
-        updateInfo();
+        if(TextUtils.isEmpty(mydelivery)){
+            Toast.makeText(ProfieEditSellerActivity.this,"Delivery Cant be Empty...", LENGTH_LONG).show();
+            return;
+        }
+        if(TextUtils.isEmpty(myshop)){
+            Toast.makeText(ProfieEditSellerActivity.this,"Shop Cant be Empty...", LENGTH_LONG).show();
+            return;
+        }
+      updateInfo();
 
     }
 
@@ -155,18 +171,21 @@ public class ProfileUserEditActivity extends AppCompatActivity implements Locati
             HashMap<String ,Object> hashMap=new HashMap<>();
             hashMap.put("uid",""+firebaseAuth.getUid());
             hashMap.put("name",""+names);
+            hashMap.put("shopName",""+myshop);
             hashMap.put("phone",phonenumber);
+            hashMap.put("delivery",mydelivery);
             hashMap.put("country",mycountry);
             hashMap.put("state",mystate);
             hashMap.put("city",mycity);
             hashMap.put("address",myadress);
+            hashMap.put("shopOpen","true");
             DatabaseReference ref= FirebaseDatabase.getInstance().getReference("Users");
             ref.child(firebaseAuth.getUid()).updateChildren(hashMap)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             dialog.dismiss();
-                            startActivity(new Intent(ProfileUserEditActivity.this, MainSellerActivity.class));
+                            startActivity(new Intent(ProfieEditSellerActivity.this, MainSellerActivity.class));
                             finish();
                         }
                     }).addOnFailureListener(new OnFailureListener() {
@@ -174,7 +193,7 @@ public class ProfileUserEditActivity extends AppCompatActivity implements Locati
                 public void onFailure(@NonNull Exception e) {
 
                     dialog.dismiss();
-                    startActivity(new Intent(ProfileUserEditActivity.this,MainSellerActivity.class));
+                    startActivity(new Intent(ProfieEditSellerActivity.this,MainSellerActivity.class));
                     finish();
                 }
             });
@@ -193,13 +212,18 @@ public class ProfileUserEditActivity extends AppCompatActivity implements Locati
                         HashMap<String ,Object> hashMap=new HashMap<>();
                         hashMap.put("uid",""+firebaseAuth.getUid());
                         hashMap.put("name",""+names);
+                        hashMap.put("shopName",""+myshop);
                         hashMap.put("phone",phonenumber);
+                        hashMap.put("delivery",mydelivery);
                         hashMap.put("country",mycountry);
                         hashMap.put("state",mystate);
                         hashMap.put("city",mycity);
                         hashMap.put("address",myadress);
                         hashMap.put("latitude",latitude);
                         hashMap.put("longitude",longitude);
+                        hashMap.put("accountType","seller");
+                        hashMap.put("online","true");
+                        hashMap.put("shopOpen","true");
                         hashMap.put("profileImage",""+downloadUri);
                         DatabaseReference ref= FirebaseDatabase.getInstance().getReference("Users");
                         ref.child(firebaseAuth.getUid()).updateChildren(hashMap)
@@ -207,14 +231,14 @@ public class ProfileUserEditActivity extends AppCompatActivity implements Locati
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         dialog.dismiss();
-                                        startActivity(new Intent(ProfileUserEditActivity.this,MainSellerActivity.class));
+                                        startActivity(new Intent(ProfieEditSellerActivity.this,MainSellerActivity.class));
                                         finish();
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 dialog.dismiss();
-                                startActivity(new Intent(ProfileUserEditActivity.this,MainSellerActivity.class));
+                                startActivity(new Intent(ProfieEditSellerActivity.this,MainSellerActivity.class));
                                 finish();
                             }
                         });
@@ -225,14 +249,77 @@ public class ProfileUserEditActivity extends AppCompatActivity implements Locati
                 public void onFailure(@NonNull Exception e) {
 
                     dialog.dismiss();
-                    Toast.makeText(ProfileUserEditActivity.this,""+e.getMessage(), LENGTH_LONG).show();
+                    Toast.makeText(ProfieEditSellerActivity.this,""+e.getMessage(), LENGTH_LONG).show();
                 }
             });
         }
     }
+
+    private void checkUSer() {
+        FirebaseUser user=firebaseAuth.getCurrentUser();
+        if(user==null){
+            startActivity(new Intent(ProfieEditSellerActivity.this, LoginActivity.class));
+            finish();
+        }
+        else {
+            loadMyInfo();
+        }
+    }
+
+    private void loadMyInfo() {
+
+        DatabaseReference reference= FirebaseDatabase.getInstance().getReference("Users");
+        reference.orderByChild("uid").equalTo(firebaseAuth.getUid()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
+                    String names=""+dataSnapshot1.child("name").getValue();
+                    String accountType=""+dataSnapshot1.child("accountType").getValue();
+                    String addresss=""+dataSnapshot1.child("address").getValue();
+                    String cityy=""+dataSnapshot1.child("city").getValue();
+                    String statee=""+dataSnapshot1.child("state").getValue();
+                    String countryy=""+dataSnapshot1.child("country").getValue();
+                    String shopNamee=""+dataSnapshot1.child("shopName").getValue();
+                    String phone1=""+dataSnapshot1.child("phone").getValue();
+                    String deliveryy=""+dataSnapshot1.child("delivery").getValue();
+                    String timestamp1=""+dataSnapshot1.child("timestamp").getValue();
+                    String onlinee=""+dataSnapshot1.child("online").getValue();
+                    String profileI=""+dataSnapshot1.child("profileImage").getValue();
+                    String shopOpen=""+dataSnapshot1.child("shopOpen").getValue();
+                    name.setText(names );
+                    phone.setText(phone1);
+                    state.setText(statee);
+                    city.setText(cityy);
+                    country.setText(countryy);
+                    adress.setText(addresss);
+                    shop.setText(shopNamee);
+                    delivery.setText(deliveryy);
+                    if(shopOpen.equals("true")){
+                        compat.setChecked(true);
+                    }
+                    else {
+                        compat.setChecked(false);
+                    }
+                    try{
+                        Picasso.get().load(profileI).into(profile);
+                    }
+                    catch (Exception e){
+
+                    }
+
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
     private void showImagePicDialog() {
         String options[]={ "Camera","Gallery"};
-        AlertDialog.Builder builder=new AlertDialog.Builder(ProfileUserEditActivity.this);
+        AlertDialog.Builder builder=new AlertDialog.Builder(ProfieEditSellerActivity.this);
         builder.setTitle("Pick Image From");
         builder.setItems(options, new DialogInterface.OnClickListener() {
             @Override
@@ -281,66 +368,13 @@ public class ProfileUserEditActivity extends AppCompatActivity implements Locati
         camerIntent.putExtra(MediaStore.EXTRA_OUTPUT,uri);
         startActivityForResult(camerIntent,IMAGE_PICKCAMERA_REQUEST);
     }
-
-
-    private void checkUSer() {
-        FirebaseUser user=firebaseAuth.getCurrentUser();
-        if(user==null){
-            startActivity(new Intent(ProfileUserEditActivity.this, LoginActivity.class));
-            finish();
-        }
-        else {
-            loadMyInfo();
-        }
-    }
-
-    private void loadMyInfo() {
-
-        DatabaseReference reference= FirebaseDatabase.getInstance().getReference("Users");
-        reference.orderByChild("uid").equalTo(firebaseAuth.getUid()).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
-                    String names=""+dataSnapshot1.child("name").getValue();
-                    String accountType=""+dataSnapshot1.child("accountType").getValue();
-                    String addresss=""+dataSnapshot1.child("address").getValue();
-                    String cityy=""+dataSnapshot1.child("city").getValue();
-                    String statee=""+dataSnapshot1.child("state").getValue();
-                    String countryy=""+dataSnapshot1.child("country").getValue();
-                    String phone1=""+dataSnapshot1.child("phone").getValue();
-                    String timestamp1=""+dataSnapshot1.child("timestamp").getValue();
-                    String onlinee=""+dataSnapshot1.child("online").getValue();
-                    String profileI=""+dataSnapshot1.child("profileImage").getValue();
-                    name.setText(names );
-                    phone.setText(phone1);
-                    state.setText(statee);
-                    city.setText(cityy);
-                    country.setText(countryy);
-                    adress.setText(addresss);
-                    try{
-                        Picasso.get().load(profileI).into(profile);
-                    }
-                    catch (Exception e){
-
-                    }
-
-
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
     private void pickFromGallery(){
         Intent galleryIntent = new Intent(Intent.ACTION_PICK);
         galleryIntent.setType("image/*");
         startActivityForResult(galleryIntent, IMAGEPICK_GALLERY_REQUEST);
     }
     private Boolean checkStoragePermission(){
-        boolean result= ContextCompat.checkSelfPermission(ProfileUserEditActivity.this,Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        boolean result= ContextCompat.checkSelfPermission(ProfieEditSellerActivity.this,Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 ==(PackageManager.PERMISSION_GRANTED);
         return result;
     }
@@ -354,7 +388,7 @@ public class ProfileUserEditActivity extends AppCompatActivity implements Locati
     }
     private void detectlocation() {
 
-        Toast.makeText(ProfileUserEditActivity.this,"Please Wait", LENGTH_LONG).show();
+        Toast.makeText(ProfieEditSellerActivity.this,"Please Wait", LENGTH_LONG).show();
         manager=(LocationManager)getSystemService(Context.LOCATION_SERVICE);
         manager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,this);
     }
@@ -374,7 +408,7 @@ public class ProfileUserEditActivity extends AppCompatActivity implements Locati
             adress.setText(addresss);
         }
         catch (Exception e){
-            Toast.makeText(ProfileUserEditActivity.this,""+e.getMessage(), LENGTH_LONG).show();
+            Toast.makeText(ProfieEditSellerActivity.this,""+e.getMessage(), LENGTH_LONG).show();
         }
     }
 
@@ -395,13 +429,13 @@ public class ProfileUserEditActivity extends AppCompatActivity implements Locati
     @Override
     public void onProviderEnabled(String provider) {
 
-        Toast.makeText(ProfileUserEditActivity.this,"Please Turn On Gps...", LENGTH_LONG).show();
+        Toast.makeText(ProfieEditSellerActivity.this,"Please Turn On Gps...", LENGTH_LONG).show();
     }
 
 
     @Override
     public void onProviderDisabled(String provider) {
-        Toast.makeText(ProfileUserEditActivity.this,"Location is Disabled", LENGTH_LONG).show();
+        Toast.makeText(ProfieEditSellerActivity.this,"Location is Disabled", LENGTH_LONG).show();
     }
 
     @Override
@@ -415,7 +449,7 @@ public class ProfileUserEditActivity extends AppCompatActivity implements Locati
                         detectlocation();
                     }
                     else {
-                        Toast.makeText(ProfileUserEditActivity.this,"LocationPermission Required", LENGTH_LONG).show();
+                        Toast.makeText(ProfieEditSellerActivity.this,"LocationPermission Required", LENGTH_LONG).show();
                     }
                 }
             }
