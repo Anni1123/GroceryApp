@@ -34,7 +34,7 @@ import java.util.ArrayList;
 
 import static android.widget.Toast.LENGTH_LONG;
 
-public class AdapterProductSeller extends RecyclerView.Adapter<AdapterProductSeller.MyHolder> implements Filterable {
+public class AdapterProductSeller extends RecyclerView.Adapter<AdapterProductSeller.MyHolder> implements Filterable  {
 
     private Context context;
     private FilterProduct product;
@@ -46,6 +46,8 @@ public class AdapterProductSeller extends RecyclerView.Adapter<AdapterProductSel
     }
 
     public ArrayList<ModelProducts> modelProducts,filterlist;
+
+
     @NonNull
     @Override
     public MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

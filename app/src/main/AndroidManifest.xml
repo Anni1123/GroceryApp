@@ -16,7 +16,8 @@
         android:roundIcon="@drawable/login"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar">
-        <activity android:name=".activities.EditProductActivity"></activity>
+        <activity android:name=".ShopDetailActivity"></activity>
+        <activity android:name=".activities.EditProductActivity" />
         <activity android:name=".activities.AddProductActivity" />
         <activity android:name=".activities.ProfieEditSellerActivity" />
         <activity android:name=".activities.ProfileUserEditActivity" />
