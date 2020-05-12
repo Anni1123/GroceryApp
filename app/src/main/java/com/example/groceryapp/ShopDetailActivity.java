@@ -7,10 +7,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -19,6 +21,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.groceryapp.activities.MainSellerActivity;
+import com.example.groceryapp.adapter.AdapterCartItem;
 import com.example.groceryapp.adapter.AdapterPoductUser;
 import com.example.groceryapp.adapter.AdapterProductSeller;
 import com.example.groceryapp.model.ModelProducts;
@@ -32,6 +35,9 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import p32929.androideasysql_library.Column;
+import p32929.androideasysql_library.EasyDB;
+
 public class ShopDetailActivity extends AppCompatActivity {
 
     private ImageView shoptv;
@@ -41,9 +47,12 @@ public class ShopDetailActivity extends AppCompatActivity {
     private RecyclerView product;
     private String shopuid;
     private FirebaseAuth firebaseAuth;
+    public String deliveryFee;
     String shopname,shopphone,shopemails,hopaddress;
     private ArrayList<ModelProducts> productsArrayList;
     private AdapterPoductUser poductUser;
+    private ArrayList<ModelCartItem> cartItem;
+    private AdapterCartItem adapterCartItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +78,7 @@ public class ShopDetailActivity extends AppCompatActivity {
         loadMyInfo();
         loadShopDetails();
         loadShopProducts();
+        deleteCart();
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,9 +88,80 @@ public class ShopDetailActivity extends AppCompatActivity {
         cart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                showCartDialog();
             }
         });
+    }
+
+    private void deleteCart() {
+        EasyDB easyDB=EasyDB.init(this,"ITEMSDB")
+                .setTableName("Items_Table")
+                .addColumn(new Column("Items_id",new String[]{"text","unique"}))
+                .addColumn(new Column("Items_pid",new String[]{"text","not null"}))
+                .addColumn(new Column("Items_name",new String[]{"text","not null"}))
+                .addColumn(new Column("Items_price_each",new String[]{"text","not null"}))
+                .addColumn(new Column("Items_price",new String[]{"text","not null"}))
+                .addColumn(new Column("Items_quantity",new String[]{"text","not null"}))
+                .doneTableColumn();
+        easyDB.deleteAllDataFromTable();
+    }
+
+    public double allTotalPrice=0;
+    public TextView discountc,totalswd,allTotalPriceh;
+    private void showCartDialog() {
+        cartItem=new ArrayList<>();
+        View view= LayoutInflater.from(this).inflate(R.layout.dialog_cart,null);
+        TextView shopNametv=view.findViewById(R.id.shopNametv);
+         allTotalPriceh=view.findViewById(R.id.totaltv);
+        discountc=view.findViewById(R.id.discountc);
+        RecyclerView cartitemtv=view.findViewById(R.id.cartitemtv);
+       totalswd=view.findViewById(R.id.totalswd);
+
+        AlertDialog.Builder builder=new AlertDialog.Builder(this);
+        builder.setView(view);
+        shopNametv.setText(shopname);
+        EasyDB easyDB=EasyDB.init(this,"ITEMSDB")
+                .setTableName("Items_Table")
+                .addColumn(new Column("Items_id",new String[]{"text","unique"}))
+                .addColumn(new Column("Items_pid",new String[]{"text","not null"}))
+                .addColumn(new Column("Items_name",new String[]{"text","not null"}))
+                .addColumn(new Column("Items_price_each",new String[]{"text","not null"}))
+                .addColumn(new Column("Items_price",new String[]{"text","not null"}))
+                .addColumn(new Column("Items_quantity",new String[]{"text","not null"}))
+                .doneTableColumn();
+        Cursor cursor=easyDB.getAllData();
+        while (cursor.moveToNext()){
+            String id=cursor.getString(1);
+            String pid=cursor.getString(2);
+            String name=cursor.getString(3);
+            String price=cursor.getString(4);
+            String cost=cursor.getString(5);
+            String quantity=cursor.getString(6);
+
+            allTotalPrice=allTotalPrice+Double.parseDouble(cost);
+            ModelCartItem cartItemss=new ModelCartItem(""+id,
+                    ""+pid,""+name
+                    ,""+price,""+cost,
+                    ""+quantity);
+            cartItem.add(cartItemss);
+        }
+        adapterCartItem=new AdapterCartItem(cartItem,this);
+        cartitemtv.setAdapter(adapterCartItem);
+        discountc.setText("Rs"+deliveryFee);
+        allTotalPriceh.setText("Rs"+allTotalPrice+Double.parseDouble(deliveryFee.replace("Rs","")));
+        totalswd.setText("Rs"+allTotalPrice);
+
+        AlertDialog dialog=builder.create();
+        dialog.show();
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                allTotalPrice=0;
+            }
+        });
+
+
+
     }
 
     private void loadShopProducts() {
@@ -158,14 +239,14 @@ public class ShopDetailActivity extends AppCompatActivity {
     private void loadFilterProducts(final String selected) {
         productsArrayList=new ArrayList<>();
         DatabaseReference reference=FirebaseDatabase.getInstance().getReference("Users");
-        reference.child(firebaseAuth.getUid()).child("Products")
+        reference.child(shopuid).child("Products")
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         productsArrayList.clear();
                         for (DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
                             String categories=""+dataSnapshot1.child("Category").getValue();
-                            if(selected.equals(categories)) {
+                            if(selected.toLowerCase().equals(categories.toLowerCase())) {
                                 ModelProducts modelProduc = dataSnapshot1.getValue(ModelProducts.class);
                                 productsArrayList.add(modelProduc);
                             }
@@ -185,7 +266,7 @@ public class ShopDetailActivity extends AppCompatActivity {
     private void loadSearchProducts(final String valueOf) {
        productsArrayList=new ArrayList<>();
         DatabaseReference reference=FirebaseDatabase.getInstance().getReference("Users");
-        reference.child(firebaseAuth.getUid()).child("Products")
+        reference.child(shopuid).child("Products")
                 .addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -195,7 +276,7 @@ public class ShopDetailActivity extends AppCompatActivity {
                             String title=""+dataSnapshot1.child("title").getValue();
                             categories=categories.toLowerCase();
                             title=title.toLowerCase();
-                            if(valueOf.equals(categories)||valueOf.equals(title)) {
+                            if(valueOf.toLowerCase().equals(categories.toLowerCase())|| valueOf.toLowerCase().equals(title.toLowerCase())) {
                                 ModelProducts modelProduc = dataSnapshot1.getValue(ModelProducts.class);
                                 productsArrayList.add(modelProduc);
                             }
@@ -256,14 +337,14 @@ public class ShopDetailActivity extends AppCompatActivity {
                 shopphone=""+dataSnapshot.child("phone").getValue();
                 shopemails=""+dataSnapshot.child("email").getValue();
                 hopaddress=""+dataSnapshot.child("address").getValue();
-                String deliveti=""+dataSnapshot.child("delivery").getValue();
+                deliveryFee=""+dataSnapshot.child("delivery").getValue();
                 String profile=""+dataSnapshot.child("profileImage").getValue();
                 String shopopen=""+dataSnapshot.child("shopOpen").getValue();
                 shopName.setText(shopname);
                 email.setText(shopemails);
                 phone.setText(shopphone);
                 address.setText(hopaddress);
-                deliveryfee.setText("Delivery Fee is $"+deliveti);
+                deliveryfee.setText("Delivery Fee is $"+deliveryFee);
                 if(shopopen.equals("true")){
                     openclose.setText("Open");
                 }
